@@ -4,6 +4,10 @@ radio.onReceivedNumber(function (receivedNumber) {
         Timer = input.runningTime()
     }
 })
+input.onSound(DetectedSound.Loud, function () {
+    sound_start = input.runningTime()
+    basic.showIcon(IconNames.Target)
+})
 input.onButtonPressed(Button.AB, function () {
     Start = false
     Movement = 0
@@ -41,6 +45,13 @@ radio.onReceivedString(function (receivedString) {
         radio.sendValue("Time", Elapsed / 1000)
     }
 })
+input.onSound(DetectedSound.Quiet, function () {
+    if (sound_start > 0) {
+        sound_time = input.runningTime()
+        sound_start = 0
+        basic.pause(100)
+    }
+})
 let is_Down = false
 let is_Up = false
 let is_South = false
@@ -52,12 +63,17 @@ let acc_y = 0
 let acc_x = 0
 let Elapsed = 0
 let Timer = 0
+let sound_start = 0
+let sound_time = 0
 let Movement = 0
 let Start = false
 Start = false
 Movement = 0
+sound_time = 0
+sound_start = 0
 basic.showNumber(0)
 radio.setGroup(1)
+input.setSoundThreshold(SoundThreshold.Loud, 100)
 basic.showLeds(`
     . . . . .
     . # . # .
@@ -70,6 +86,7 @@ basic.forever(function () {
         radio.sendValue("x", input.acceleration(Dimension.X))
         radio.sendValue("y", input.acceleration(Dimension.Z))
         radio.sendValue("z", input.acceleration(Dimension.Y))
+        radio.sendValue("sound", sound_time)
     }
 })
 basic.forever(function () {
